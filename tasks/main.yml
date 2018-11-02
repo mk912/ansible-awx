@@ -1,0 +1,29 @@
+---
+# tasks file for ansible-awx
+- name: Enable CentOS EPEL repository
+  yum: name=epel-release state=latest
+
+- name: Enable postgreSQL repo
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+    state: present
+
+- name: Installing postgreSQL
+  yum: name=postgresql96-server state=present
+
+- name: Installing the other necessary rpms
+  yum: name={{ item }} state=present
+  with_items:
+    - rabbitmq-server
+    - wget
+    - memcached
+    - nginx
+    - ansible
+
+- name: Adding the AWX repo
+  get_url:
+    url: https://copr.fedorainfracloud.org/coprs/mrmeee/awx/repo/epel-7/mrmeee-awx-epel-7.repo
+    dest: /etc/yum.repos.d/awx-rpm.repo
+    
+- name: Installing the rpm
+  yum: name=awx state=present
